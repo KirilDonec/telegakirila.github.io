@@ -1,29 +1,41 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Telegram Bot Interface</title>
+    <title>Telegram Bot Interface</title>
 </head>
 <body>
-	<h1>Telegram Bot Interface</h1>
-	<form action="send_message.php" method="post">
-		<label for="token">Bot Token:</label>
-		<input type="text" id="token" name="token"><br><br>
-		<label for="chat_id">Chat ID:</label>
-		<input type="text" id="chat_id" name="chat_id"><br><br>
-		<label for="message">Message:</label><br>
-		<textarea id="message" name="message" rows="5" cols="30"></textarea><br><br>
-		<input type="submit" value="Send">
-	</form>
+    <h1>Telegram Bot Interface</h1>
+    <form action="index.php" method="post">
+        <label for="token">Bot Token:</label>
+        <input type="text" id="token" name="token"><br><br>
+        <input type="submit" value="Get Chats">
+    </form>
+
+    <?php
+    if (isset($_POST['token'])) {
+        $bot_token = $_POST['token'];
+        $api_url = 'https://api.telegram.org/bot' . $bot_token;
+
+        // Получаем список чатов бота
+        $chats = json_decode(file_get_contents($api_url . '/getUpdates'), true);
+        echo '<h2>Chats</h2>';
+        echo '<ul>';
+        foreach ($chats['result'] as $chat) {
+            echo '<li><a href="?chat_id=' . $chat['message']['chat']['id'] . '">' . $chat['message']['chat']['title'] . '</a></li>';
+        }
+        echo '</ul>';
+
+        if (isset($_GET['chat_id'])) {
+            $chat_id = $_GET['chat_id'];
+            $messages = json_decode(file_get_contents($api_url . '/getChatHistory?chat_id=' . $chat_id), true);
+            echo '<h2>' . $messages['result']['chat']['title'] . '</h2>';
+            echo '<ul>';
+            foreach ($messages['result']['messages'] as $message) {
+                echo '<li>' . $message['text'] . '</li>';
+            }
+            echo '</ul>';
+        }
+    }
+    ?>
 </body>
 </html>
-<!-- send_message.php -->
-<?php
-$bot_token = $_POST['token'];
-$chat_id = $_POST['chat_id'];
-$message = $_POST['message'];
-
-$url = "https://api.telegram.org/bot".$bot_token."/sendMessage?chat_id=".$chat_id."&text=".urlencode($message);
-
-file_get_contents($url);
-echo "Message sent successfully!";
-?> 
