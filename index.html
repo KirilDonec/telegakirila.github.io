@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Telegram Bot Interface</title>
+</head>
+<body>
+	<h1>Telegram Bot Interface</h1>
+	<form action="send_message.php" method="post">
+		<label for="token">Bot Token:</label>
+		<input type="text" id="token" name="token"><br><br>
+		<label for="chat_id">Chat ID:</label>
+		<input type="text" id="chat_id" name="chat_id"><br><br>
+		<label for="message">Message:</label><br>
+		<textarea id="message" name="message" rows="5" cols="30"></textarea><br><br>
+		<input type="submit" value="Send">
+	</form>
+</body>
+</html>
+<!-- send_message.php -->
+<?php
+$bot_token = $_POST['token'];
+$chat_id = $_POST['chat_id'];
+$message = $_POST['message'];
+
+$url = "https://api.telegram.org/bot".$bot_token."/sendMessage?chat_id=".$chat_id."&text=".urlencode($message);
+
+file_get_contents($url);
+echo "Message sent successfully!";
+?> 
